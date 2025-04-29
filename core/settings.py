@@ -38,13 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rewards',
-    'reward_brands',
-    'contacts',
-    'purchases',
-    'rewards_categories',
-    'rewards_types',
-    'platforms',
-    
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

@@ -2,52 +2,74 @@ from django.db import models
 import uuid
 from django.utils.translation import gettext_lazy as _
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.exceptions import ValidationError
 
-# Definición de Enums 
-class ModelStatus(models.TextChoices):
-    ACTIVE = 'active', _('Active')
-    INACTIVE = 'inactive', _('Inactive')
-    ARCHIVED = 'archived', _('Archived')
+PRICE_CHOICES = [
+    ('fixed', _('Fixed')),
+    ('multi-value', _('Multi Value')),
+    ('range', _('Range')),
+    ('custom', _('Custom')),
+]
+STATUS_CHOICES = [
+    ('active', _('Active')),
+    ('inactive', _('Inactive')),
+    ('pending', _('Pending')),
+]
 
-class PriceType(models.TextChoices):
-    FIXED = 'fixed', _('Fixed')
-    MULTI_VALUE = 'multi-value', _('Multi Value')
-    RANGE = 'range', _('Range')
-    CUSTOM = 'custom', _('Custom')
-
-class Reward(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    slug = models.SlugField()
-    reward_brand = models.ForeignKey('reward_brands.RewardBrand', on_delete=models.CASCADE, related_name='reward_set')
-    contact = models.ForeignKey('contacts.Contact', on_delete=models.CASCADE, related_name='rewards')
-    purchase_detail = models.ForeignKey('purchases.PurchaseDetail', on_delete=models.CASCADE, null=True, blank=True, related_name='rewards')
-    country = models.CharField(max_length=2)
-    currency = models.CharField(max_length=3)
-    price_type = models.CharField(
-        max_length=20,
-        choices=PriceType.choices,
-        default=PriceType.FIXED
-    )
-    price = models.JSONField(encoder=DjangoJSONEncoder)
-    status = models.CharField(
-        max_length=10,
-        choices=ModelStatus.choices,
-        default=ModelStatus.ACTIVE
-    )
+class PurchaseDetail(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    where_to_buy = models.TextField(blank=True, null=True)
+    how_to_buy = models.TextField(blank=True, null=True)
+    how_to_redeem = models.TextField(blank=True, null=True)
+    bulk_detail = models.TextField(blank=True, null=True)
+    process_duration_detail = models.TextField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
+    merchant_coverage_detail = models.TextField(blank=True, null=True)
+    conditions = models.TextField(blank=True, null=True)
+    validity = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(blank=True, null=True)
 
-    @property
-    def formattedPrice(self):
-        if self.price_type == PriceType.FIXED:
-            price = self.price[0] if isinstance(self.price, list) and self.price else 0
-            return f"{self.currency} {price:,.2f}"
-        elif self.price_type in [PriceType.MULTI_VALUE, PriceType.CUSTOM]:
-            return f"{self.currency} {', '.join(map(str, self.price))}"
-        elif self.price_type == PriceType.RANGE:
-            return f"{self.currency} {' - '.join(map(str, self.price))}"
-        return self.price
+    class Meta:
+        db_table = 'purchase_details'
 
-    def __str__(self):
-        return self.slug
+class RewardBrand(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    uuid = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
+    slug = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(blank=True, null=True)
+    website_url = models.URLField(max_length=2048, blank=True, null=True)  # Increased max_length
+    purchase_detail = models.ForeignKey(PurchaseDetail,on_delete=models.SET_NULL,related_name='reward_brands',blank=True,null=True)
+    class Meta:
+        db_table = 'reward_brands'
+
+class Reward(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    uuid = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
+    slug = models.CharField(max_length=255, unique=True)
+    category_slug = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    currency = models.CharField(max_length=10)
+
+    price_type = models.CharField(max_length=20, choices=PRICE_CHOICES, default='fixed')
+    price = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+
+    contact_name = models.CharField(max_length=255, blank=True, null=True)
+    contact_email = models.EmailField(blank=True, null=True)
+    contact_phone_number = models.CharField(max_length=20, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(blank=True, null=True)
+    reward_brand = models.ForeignKey(RewardBrand, on_delete=models.CASCADE, related_name='rewards')
+    
+
+    class Meta:
+        db_table = 'rewards'
