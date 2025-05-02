@@ -1,0 +1,48 @@
+# Base
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+env/
+venv/
+ENV/
+.venv/
+.env/
+
+# Archivos de configuración local
+*.env
+.env.*
+*.local
+.settings/
+
+# Archivos de bases de datos
+db.sqlite3
+*.sqlite3
+
+# Archivos de logs
+*.log
+
+# Django static/media (si son generados o temporales)
+staticfiles/
+static/
+media/
+
+# Archivos de compilación
+*.egg-info/
+dist/
+build/
+
+# VSCode y otros editores
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+# node (si usas frontend con Node)
+node_modules/
+
+# Migrations (si no quieres versionarlas, opcional)
+*/migrations/__pycache__/
+*/migrations/*.pyc
