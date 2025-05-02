@@ -23,7 +23,7 @@ def price_format(value):
 
     return value.strip()
 
-def import_reward_from_excel(filename='base_rewards1.xlsx'):
+def import_reward_from_excel(filename='base_rewards.xlsx'):
     try:
         workbook = openpyxl.load_workbook(filename)
         sheet = workbook.active
