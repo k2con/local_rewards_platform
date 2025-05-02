@@ -1,75 +1,108 @@
 from django.db import models
 import uuid
 from django.utils.translation import gettext_lazy as _
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core.exceptions import ValidationError
 
-PRICE_CHOICES = [
-    ('fixed', _('Fixed')),
-    ('multi-value', _('Multi Value')),
-    ('range', _('Range')),
-    ('custom', _('Custom')),
-]
+# Status and Type Choices
 STATUS_CHOICES = [
-    ('active', _('Active')),
-    ('inactive', _('Inactive')),
-    ('pending', _('Pending')),
+    ('Active', _('Active')),
+    ('Inactive', _('Inactive')),
+    ('Pending', _('Pending')),
 ]
+
+PRICE_TYPE_CHOICES = [
+    ('Range', _('Range')),
+    ('Fixed', _('Fixed')),
+    ('Multi-Value', _('Multi-Value')),
+    ('Custom', _('Custom')),
+]
+
+class BrandsCategory(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Category Title")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+class Brand(models.Model):
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    name = models.CharField(max_length=255)
+    website_url = models.URLField(max_length=500)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    verified = models.BooleanField(default=False)
+    category = models.ForeignKey(BrandsCategory, on_delete=models.CASCADE, related_name='brands')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Country(models.Model):
+    name = models.CharField(max_length=255)
+    iso_code = models.CharField(max_length=10)
+    phone_prefix = models.CharField(max_length=10, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 class PurchaseDetail(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    where_to_buy = models.TextField(blank=True, null=True)
-    how_to_buy = models.TextField(blank=True, null=True)
-    how_to_redeem = models.TextField(blank=True, null=True)
-    bulk_detail = models.TextField(blank=True, null=True)
-    process_duration_detail = models.TextField(blank=True, null=True)
-    comments = models.TextField(blank=True, null=True)
-    merchant_coverage_detail = models.TextField(blank=True, null=True)
-    conditions = models.TextField(blank=True, null=True)
-    validity = models.TextField(blank=True, null=True)
+    where_to_buy = models.TextField(null=True, blank=True)
+    how_to_buy = models.TextField(null=True, blank=True)
+    how_to_redeem = models.TextField(null=True, blank=True)
+    bulk_detail = models.TextField(null=True, blank=True)
+    process_duration_detail = models.TextField(null=True, blank=True)
+    comments = models.TextField(null=True, blank=True)
+    merchant_coverage_detail = models.TextField(null=True, blank=True)
+    conditions = models.TextField(null=True, blank=True)
+    validity = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        db_table = 'purchase_details'
-
-class RewardBrand(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    uuid = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
-    slug = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    verified = models.BooleanField(default=False)
+class BrandCountry(models.Model):
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    purchase = models.ForeignKey(PurchaseDetail, on_delete=models.CASCADE)
+    contact_name = models.CharField(max_length=255, null=True, blank=True)
+    contact_email = models.EmailField(null=True, blank=True)
+    contact_phone_number = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
-    website_url = models.URLField(max_length=2048, blank=True, null=True)  # Increased max_length
-    purchase_detail = models.ForeignKey(PurchaseDetail,on_delete=models.SET_NULL,related_name='reward_brands',blank=True,null=True)
-    class Meta:
-        db_table = 'reward_brands'
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
 class Reward(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    uuid = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
-    slug = models.CharField(max_length=255, unique=True)
-    category_slug = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
-    currency = models.CharField(max_length=10)
-
-    price_type = models.CharField(max_length=20, choices=PRICE_CHOICES, default='fixed')
-    price = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-
-    contact_name = models.CharField(max_length=255, blank=True, null=True)
-    contact_email = models.EmailField(blank=True, null=True)
-    contact_phone_number = models.CharField(max_length=20, blank=True, null=True)
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    brand_country = models.ForeignKey(BrandCountry, on_delete=models.CASCADE)
+    comments = models.TextField(null=True, blank=True)
+    # price = models.ForeignKey(Price, on_delete=models.CASCADE)
+    image_url = models.URLField(max_length=500, null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
-    reward_brand = models.ForeignKey(RewardBrand, on_delete=models.CASCADE, related_name='rewards')
-    
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        db_table = 'rewards'
+
+class Currency(models.Model):
+    name = models.CharField(max_length=100)
+    iso_code = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.iso_code
+
+class Price(models.Model):
+    reward = models.ForeignKey('Reward', on_delete=models.CASCADE, related_name='prices')
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES)
+    value_min = models.DecimalField(max_digits=10, decimal_places=2,null=True, blank=True)#None
+    value_max = models.DecimalField(max_digits=10, decimal_places=2,null=True, blank=True)#None
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
