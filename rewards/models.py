@@ -12,8 +12,7 @@ STATUS_CHOICES = [
 PRICE_TYPE_CHOICES = [
     ('Range', _('Range')),
     ('Fixed', _('Fixed')),
-    ('Multi-Value', _('Multi-Value')),
-    ('Custom', _('Custom')),
+    ('Multivalue', _('Multivalue')),
 ]
 
 class BrandsCategory(models.Model):
@@ -70,7 +69,7 @@ class BrandCountry(models.Model):
     purchase = models.ForeignKey(PurchaseDetail, on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=255, null=True, blank=True)
     contact_email = models.EmailField(null=True, blank=True)
-    contact_phone_number = models.CharField(max_length=20, null=True, blank=True)
+    contact_phone_number = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)

@@ -18,12 +18,14 @@ letters = list(string.ascii_lowercase)  # ['a', 'b', 'c', ..., 'z']
 key = {letter: index for index, letter in enumerate(letters)}
 
 def price_format(value):
+    value = value.strip()
+
     if value.upper() in ['UNLIMITED', 'ANY']: 
         value = None    
 
-    return value.strip()
+    return value
 
-def import_reward_from_excel(filename='base_rewards.xlsx'):
+def import_reward_from_excel(filename='base rewards v2.xlsx'):
     try:
         workbook = openpyxl.load_workbook(filename)
         sheet = workbook.active
@@ -109,7 +111,7 @@ def import_reward_from_excel(filename='base_rewards.xlsx'):
                 contact_name = row[key['i']].value
                 contact_email = row[key['j']].value
                 if row[key['l']].value:
-                    contact_phone_number = str(int(row[key['l']].value))
+                    contact_phone_number = str(row[key['l']].value)
                     
 
                 brand_country = None
@@ -151,11 +153,67 @@ def import_reward_from_excel(filename='base_rewards.xlsx'):
                                                                         }
                                                                     )
                 """Price [reward,currency,type,value_min,value_max,created_at,updated_at,deleted_at]"""
+                """
+                    500 - 10000	Range
+                    100, 150, 250, 350, 500	Multivalue
+                    10	Fixed
+                """
                 type = row[key['p']].value.title()
+                if "MULTIVALUE" in type.upper():
+                    type = "Multivalue"
+                elif "RANGE" in type.upper():
+                    type = "Range"
+                elif "FIXED" in type.upper():
+                    type = "Fixed"
 
-                parts = str(row[key['o']].value).split("-")
+                
+                value = str(row[key['o']].value)
+                parts = []
+                if '–' in value:
+                    parts = value.split('–')
+                    # print("1-")
+                elif '-' in value:
+                    parts = value.split('-')
+                    # print("2-")
+                elif "," in value:
+                    parts = value.split(',')
+                    # print(",")
+                else:
+                    parts.append(value)
+                    # print("no ,-")
+                    
                 length = len(parts)
 
+                if type.upper() in ['MULTIVALUE', 'FIXED']:
+                        for i in range(length):
+                            
+                            price_min = price_format(parts[i])
+                            price_max = price_format(parts[i])
+                            
+                            if parts[i].upper().strip() == 'ANY':
+                                price_min = 1
+                                type = "Range"
+                            else:
+                                type = "Fixed"
+                            
+                            Price.objects.get_or_create(reward = reward,
+                                                        currency = currency,
+                                                        type = type,
+                                                        value_min = price_min,
+                                                        value_max = price_max
+                                                    )
+                elif type.upper() in ['RANGE']:
+                    price_min = price_format(parts[0])
+                    price_max = price_format(parts[1])
+                    # if parts[0].upper() == 'ANY' and parts[1].upper() == 'ANY':
+                    #     price_min = 1
+                    
+                    Price.objects.get_or_create(reward = reward,
+                                                currency = currency,
+                                                type = type,
+                                                value_min = price_min,
+                                                value_max = price_max
+                                            )
                 # if length == 1:
                 #     price_min = price_format(parts[0])
                 #     price_max = price_format(parts[0])
