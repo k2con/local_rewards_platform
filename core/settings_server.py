@@ -19,6 +19,6 @@ DATABASES = {
 
 
 ALLOWED_HOSTS = [
-    '*.elasticbeanstalk.com'
+    'rewards-platform.us-east-2.elasticbeanstalk.com'
 
 ]
