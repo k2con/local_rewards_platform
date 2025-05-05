@@ -31,7 +31,8 @@ def import_reward_from_excel(filename='base rewards v2.xlsx'):
         sheet = workbook.active
 
         for row in sheet.iter_rows(min_row=2):
-            # try:
+
+            try:
                 #Creando si no existe el brandCategory
                 """BrandsCategory [title,created_at,updated_at,deleted_at]"""                
                 title = row[key['g']].value.title()
@@ -214,16 +215,15 @@ def import_reward_from_excel(filename='base rewards v2.xlsx'):
                                                 value_max = price_max
                                             )
                
-            # except Exception as e:
-            #     print(f"Error al procesar la fila {row}: {e}")
-            #     break
+            except Exception as e:
+                print(f"Error al procesar la fila {row}: {e}")
+                raise e
         
         print("Importación de reward completada.")
 
     except FileNotFoundError:
         print(f"Error: El archivo '{filename}' no fue encontrado en la raíz del proyecto.")
-    except Exception as e:
-        print(f"Error general durante la importación: {e}")
+
 
 if __name__ == "__main__":
     import_reward_from_excel()
