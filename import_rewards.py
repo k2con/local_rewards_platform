@@ -25,7 +25,9 @@ def price_format(value):
 
     return value
 
-def import_reward_from_excel(filename='base rewards v2.xlsx'):
+# def import_reward_from_excel(filename='base rewards v2.xlsx'):
+def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la linea 125).xlsx'):
+
 
     workbook = openpyxl.load_workbook(filename)
 
