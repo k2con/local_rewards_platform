@@ -19,6 +19,6 @@ DATABASES = {
 
 
 ALLOWED_HOSTS = [
-    'megadash.masamo.tech',
-    'megadash-stg.masamo.tech',
+    '*.elasticbeanstalk.com'
+
 ]
