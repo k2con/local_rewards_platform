@@ -33,7 +33,7 @@ from .filters import RewardFilter
 #     serializer_class = PriceSerializer
 
 
-class RewardViewSet(viewsets.ModelViewSet):
+class RewardViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Reward.objects.all()
     serializer_class = RewardSerializer
     filter_backends = [DjangoFilterBackend]
