@@ -128,6 +128,14 @@ def import_reward_from_excel(filename='base rewards v2.xlsx'):
                                                                                     "contact_phone_number" : contact_phone_number,
                                                                                 }
                                                                             )
+                    print({
+                            "brand" : brand,
+                            "country" : country,
+                            "purchase" : purchase_detail,
+                            "contact_name" : contact_name,
+                            "contact_email" : contact_email,
+                            "contact_phone_number" : contact_phone_number,
+                        })
                 #Creando si no existe el reward
                 
                 """Reward [uid,brand_country,comments,image_url,status,created_at,updated_at,deleted_at]"""
