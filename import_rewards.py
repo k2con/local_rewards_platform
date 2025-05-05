@@ -31,8 +31,7 @@ def import_reward_from_excel(filename='base rewards v2.xlsx'):
         sheet = workbook.active
 
         for row in sheet.iter_rows(min_row=2):
-
-            try:
+            # try:
                 #Creando si no existe el brandCategory
                 """BrandsCategory [title,created_at,updated_at,deleted_at]"""                
                 title = row[key['g']].value.title()
@@ -214,76 +213,10 @@ def import_reward_from_excel(filename='base rewards v2.xlsx'):
                                                 value_min = price_min,
                                                 value_max = price_max
                                             )
-                # if length == 1:
-                #     price_min = price_format(parts[0])
-                #     price_max = price_format(parts[0])
-                #     if parts[0].upper() == 'ANY':
-                #         price_min = 1
-                        
-                #     Price.objects.get_or_create(reward = reward,
-                #                                     currency = currency,
-                #                                     type = "Fixed",
-                #                                     value_min = price_min,
-                #                                     value_max = price_max
-                #                                 )
-                    
-                # elif length == 2:
-                #     price_min = price_format(parts[0])
-                #     price_max = price_format(parts[1])
-                #     if parts[1].upper() in ['UNLIMITED', 'ANY']:
-                #         price_max = None
-                        
-                #     Price.objects.get_or_create(reward = reward,
-                #                                     currency = currency,
-                #                                     type = "Range",
-                #                                     value_min = price_min,
-                #                                     value_max = price_max
-                #                                 )
-
-                """"""
-                # if type.upper() in ['RANGE'] and length == 2:
-
-                #     Price.objects.get_or_create(reward = reward,
-                #                                 currency = currency,
-                #                                 type = "Range",
-                #                                 value_min = price_format(parts[0]),
-                #                                 value_max = price_format(parts[1])
-                #                             )
-                                                
-                    
-                # elif type.upper() in ['FIXED'] and length == 1:
-
-                #     if price_format(parts[0]) == 'ANY':
-                #         value_min = 1
-                #         value_max = 1
-                #     else:
-                #         value_min = price_format(parts[0])
-                #         value_max = price_format(parts[0])
-
-                #     Price.objects.get_or_create(reward = reward,
-                #                                     currency = currency,
-                #                                     type = "Fixed",
-                #                                     value_min = value_min,
-                #                                     value_max = value_max
-                #                                 )
-
-                # elif type.upper() in ['MULTI-VALUE'] and length >= 1:
-
-                #     for i in range(length):
-                #          Price.objects.get_or_create(reward = reward,
-                #                                         currency = currency,
-                #                                         type = 'Fixed',
-                #                                         value_min = price_format(parts[0]),
-                #                                         value_max = price_format(parts[0])
-                #                                     )
-                
-                # if type.upper() in ['RANGE', 'FIXED', 'MULTI-VALUE', 'CUSTOM']:
                
-                # print(f"Reward '{reward.id}' importado exitosamente.")
-                # break
-            except Exception as e:
-                print(f"Error al procesar la fila {row}: {e}")
-                break
+            # except Exception as e:
+            #     print(f"Error al procesar la fila {row}: {e}")
+            #     break
         
         print("Importación de reward completada.")
 
