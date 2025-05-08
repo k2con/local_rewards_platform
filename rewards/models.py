@@ -63,7 +63,7 @@ class BrandCountry(models.Model):
         return f"{self.brand.id}) {self.brand.name} - {self.country.name}"
 
 class PurchaseDetail(models.Model):
-    brand_country = models.OneToOneField(BrandCountry, on_delete=models.CASCADE)
+    brand_country = models.OneToOneField(BrandCountry, on_delete=models.CASCADE,related_name='purchase_detail')
     where_to_buy = models.TextField(null=True, blank=True)
     how_to_buy = models.TextField(null=True, blank=True)
     how_to_redeem = models.TextField(null=True, blank=True)

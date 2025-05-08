@@ -18,6 +18,20 @@ class CountrySerializer(serializers.ModelSerializer):
         model = Country
         fields = '__all__'
 
+# class PurchaseDetailSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = PurchaseDetail
+#         fields = '__all__'
+
+# class BrandCountrySerializer(serializers.ModelSerializer):
+#     brand = BrandSerializer()
+#     country = CountrySerializer()
+#     purchase = PurchaseDetailSerializer()
+
+#     class Meta:
+#         model = BrandCountry
+#         fields = '__all__'
+
 class PurchaseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseDetail
@@ -26,11 +40,28 @@ class PurchaseDetailSerializer(serializers.ModelSerializer):
 class BrandCountrySerializer(serializers.ModelSerializer):
     brand = BrandSerializer()
     country = CountrySerializer()
-    purchase = PurchaseDetailSerializer()
+    purchase = serializers.SerializerMethodField()
 
     class Meta:
         model = BrandCountry
-        fields = '__all__'
+        fields = '__all__'  # puedes mantener '__all__' pero el campo `purchase` será adicional
+
+    def get_purchase(self, obj):
+        try:
+            # Si agregaste related_name="purchase_detail"
+            purchase = obj.purchase_detail
+            return PurchaseDetailSerializer(purchase).data
+        except PurchaseDetail.DoesNotExist:
+            return None
+        except AttributeError:
+            # Si no agregaste related_name
+            try:
+                purchase = PurchaseDetail.objects.get(brand_country=obj)
+                return PurchaseDetailSerializer(purchase).data
+            except PurchaseDetail.DoesNotExist:
+                return None
+
+
 
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
