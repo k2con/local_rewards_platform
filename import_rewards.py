@@ -43,9 +43,9 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
         brand_category = None
         if title :
             brand_category, bc_created = BrandsCategory.objects.get_or_create(title = title,
-                                                                           defaults={
-                                                                                        "title" : title,
-                                                                                    })
+                                                                                defaults={
+                                                                                                "title" : title,
+                                                                                            })
 
         #Creando si no existe el brand
         """Brand [uid,name,website_url,status,verified,category,created_at,updated_at,deleted_at]"""
@@ -80,7 +80,27 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
                                                                     "iso_code" : iso_code,
                                                                     "phone_prefix" : phone_prefix,
                                                                 })
-        #Creando si no existe el purchaseDetail
+       
+        #Creando si no existe el brandCountry
+        """BrandCountry [brand,country,purchase,contact_name,contact_email,contact_phone_number,created_at,
+            updated_at,deleted_at]"""
+        contact_name = row[key['i']].value
+        contact_email = row[key['j']].value
+        if row[key['l']].value:
+            contact_phone_number = str(row[key['l']].value)
+
+
+        brand_country = None
+        if brand and country:
+            brand_country = BrandCountry.objects.create(
+                                                            brand=brand,
+                                                            country=country,
+                                                            contact_name=contact_name,
+                                                            contact_email=contact_email,
+                                                            contact_phone_number=contact_phone_number,
+                                                        )
+            
+         #Creando si no existe el purchaseDetail
         """PurchaseDetail [where_to_buy,how_to_buy,how_to_redeem,bulk_detail,process_duration_detail,comments,
             merchant_coverage_detail,conditions,validity,created_at,updated_at,deleted_at]"""
         where_to_buy = row[key['q']].value
@@ -95,60 +115,30 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
 
         purchase_detail = None
         if where_to_buy or how_to_buy or how_to_redeem or bulk_detail or process_duration_detail or comments or merchant_coverage_detail or conditions or validity:
-            purchase_detail, pd_created = PurchaseDetail.objects.get_or_create(where_to_buy = where_to_buy, how_to_buy = how_to_buy, how_to_redeem = how_to_redeem, bulk_detail = bulk_detail, process_duration_detail = process_duration_detail, comments = comments, merchant_coverage_detail = merchant_coverage_detail, conditions = conditions, validity = validity,
-                                                                            defaults={
-                                                                                "where_to_buy" : where_to_buy,
-                                                                                "how_to_buy" : how_to_buy,
-                                                                                "how_to_redeem" : how_to_redeem,
-                                                                                "bulk_detail" : bulk_detail,
-                                                                                "process_duration_detail" : process_duration_detail,
-                                                                                "comments" : comments,
-                                                                                "merchant_coverage_detail" : merchant_coverage_detail,
-                                                                                "conditions" : conditions,
-                                                                                "validity" : validity,
-                                                                            }
-                                                                        )
-        #Creando si no existe el brandCountry
-        """BrandCountry [brand,country,purchase,contact_name,contact_email,contact_phone_number,created_at,
-            updated_at,deleted_at]"""
-        contact_name = row[key['i']].value
-        contact_email = row[key['j']].value
-        if row[key['l']].value:
-            contact_phone_number = str(row[key['l']].value)
-
-
-        brand_country = None
-        if brand and country and purchase_detail:
-            print({
-                    "brand" : brand,
-                    "country" : country,
-                    "purchase" : purchase_detail,
-                    "contact_name" : contact_name,
-                    "contact_email" : contact_email,
-                    "contact_phone_number" : contact_phone_number,
-                })
-            brand_country, bc_created = BrandCountry.objects.get_or_create(brand = brand,
-                                                                        country = country,
-                                                                        purchase = purchase_detail,
-                                                                        defaults={
-                                                                            "brand" : brand,
-                                                                            "country" : country,
-                                                                            "purchase" : purchase_detail,
-                                                                            "contact_name" : contact_name,
-                                                                            "contact_email" : contact_email,
-                                                                            "contact_phone_number" : contact_phone_number,
-                                                                        }
-                                                                    )
+            purchase_detail= PurchaseDetail.objects.create(brand_country = brand_country,
+                                                            where_to_buy = where_to_buy,
+                                                            how_to_buy=how_to_buy,
+                                                            how_to_redeem=how_to_redeem,
+                                                            bulk_detail=bulk_detail,
+                                                            process_duration_detail=process_duration_detail,
+                                                            comments=comments,
+                                                            merchant_coverage_detail=merchant_coverage_detail,
+                                                            conditions=conditions,
+                                                            validity=validity,
+                                                        )
 
         #Creando si no existe el reward
 
         """Reward [uid,brand_country,comments,image_url,status,created_at,updated_at,deleted_at]"""
 
         reward = None
+        reward_type = row[key['m']].value.title()
         if brand_country:
             reward, r_created = Reward.objects.get_or_create(brand_country = brand_country,
+                                                                reward_type = reward_type,
                                                                 defaults={
                                                                     "brand_country" : brand_country,
+                                                                    "reward_type" : reward_type,
                                                                     "status" : 'active',
                                                                 }
                                                             )
@@ -170,13 +160,13 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
             100, 150, 250, 350, 500	Multivalue
             10	Fixed
         """
-        type = row[key['p']].value.title()
-        if "MULTIVALUE" in type.upper():
-            type = "Multivalue"
-        elif "RANGE" in type.upper():
-            type = "Range"
-        elif "FIXED" in type.upper():
-            type = "Fixed"
+        price_type = row[key['p']].value.title()
+        if "MULTIVALUE" in price_type.upper():
+            price_type = "Multivalue"
+        elif "RANGE" in price_type.upper():
+            price_type = "Range"
+        elif "FIXED" in price_type.upper():
+            price_type = "Fixed"
 
 
         value = str(row[key['o']].value)
@@ -196,7 +186,7 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
 
         length = len(parts)
 
-        if type.upper() in ['MULTIVALUE', 'FIXED']:
+        if price_type.upper() in ['MULTIVALUE', 'FIXED']:
                 for i in range(length):
 
                     price_min = price_format(parts[i])
@@ -204,25 +194,23 @@ def import_reward_from_excel(filename='base rewards v2(sin los telefonos de la l
 
                     if parts[i].upper().strip() == 'ANY':
                         price_min = 1
-                        type = "Range"
+                        price_type = "Range"
                     else:
-                        type = "Fixed"
+                        price_type = "Fixed"
 
                     Price.objects.get_or_create(reward = reward,
                                                 currency = currency,
-                                                type = type,
+                                                price_type = price_type,
                                                 value_min = price_min,
                                                 value_max = price_max
                                             )
-        elif type.upper() in ['RANGE']:
+        elif price_type.upper() in ['RANGE']:
             price_min = price_format(parts[0])
             price_max = price_format(parts[1])
-            # if parts[0].upper() == 'ANY' and parts[1].upper() == 'ANY':
-            #     price_min = 1
 
             Price.objects.get_or_create(reward = reward,
                                         currency = currency,
-                                        type = type,
+                                        price_type = price_type,
                                         value_min = price_min,
                                         value_max = price_max
                                     )
