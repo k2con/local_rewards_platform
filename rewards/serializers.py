@@ -41,6 +41,8 @@ class BrandCountrySerializer(serializers.ModelSerializer):
     brand = BrandSerializer()
     country = CountrySerializer()
     purchase = serializers.SerializerMethodField()
+    contact_phone_number = serializers.SerializerMethodField()
+
 
     class Meta:
         model = BrandCountry
@@ -60,6 +62,15 @@ class BrandCountrySerializer(serializers.ModelSerializer):
                 return PurchaseDetailSerializer(purchase).data
             except PurchaseDetail.DoesNotExist:
                 return None
+    def get_contact_phone_number(self, obj):
+        try:
+            phone = obj.contact_phone_number
+            prefix = obj.country.phone_prefix
+            if prefix and phone:
+                return f'+{prefix}{phone}'
+            return phone
+        except AttributeError:
+            return phone
 
 
 
@@ -82,3 +93,4 @@ class RewardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reward
         fields = '__all__'
+    

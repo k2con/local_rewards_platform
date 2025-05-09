@@ -6,15 +6,18 @@ from django.utils.translation import gettext_lazy as _
 STATUS_CHOICES = [
     ('Active', _('Active')),
     ('Inactive', _('Inactive')),
-    ('Pending', _('Pending')),
 ]
 
 PRICE_TYPE_CHOICES = [
     ('Range', _('Range')),
     ('Fixed', _('Fixed')),
-    ('Multivalue', _('Multivalue')),
 ]
 
+REWARD_CATEGORIES_CHOICES = [
+    ('Physical', _('Physical')),
+    ('Digital', _('Digital')),
+    ('Digital / Physical', _('Digital / Physical')),
+]
 class BrandsCategory(models.Model):
     title = models.CharField(max_length=255, verbose_name="Category Title")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,6 +51,9 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = "Country"
+        verbose_name_plural = "Countries"
 
 class BrandCountry(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
@@ -60,7 +66,7 @@ class BrandCountry(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.brand.id}) {self.brand.name} - {self.country.name}"
+        return f"{self.brand.name} - {self.country.name}"
 
 class PurchaseDetail(models.Model):
     brand_country = models.OneToOneField(BrandCountry, on_delete=models.CASCADE,related_name='purchase_detail')
@@ -80,7 +86,7 @@ class PurchaseDetail(models.Model):
 class Reward(models.Model):
     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     brand_country = models.OneToOneField(BrandCountry, on_delete=models.CASCADE)
-    reward_type = models.CharField(max_length=50, null=True, blank=True)
+    reward_type = models.CharField(max_length=50, choices=REWARD_CATEGORIES_CHOICES, null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
     image_url = models.URLField(max_length=500, null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
@@ -98,6 +104,9 @@ class Currency(models.Model):
 
     def __str__(self):
         return self.iso_code
+    class Meta:
+        verbose_name = "Currency"
+        verbose_name_plural = "Currencies"
 
 class Price(models.Model):
     reward = models.ForeignKey('Reward', on_delete=models.CASCADE, related_name='prices')
