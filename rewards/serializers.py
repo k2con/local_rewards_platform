@@ -67,7 +67,7 @@ class BrandCountrySerializer(serializers.ModelSerializer):
             phone = obj.contact_phone_number
             prefix = obj.country.phone_prefix
             if prefix and phone:
-                return f'+{prefix}{phone}'
+                return f'+({prefix}){phone}'
             return phone
         except AttributeError:
             return phone
