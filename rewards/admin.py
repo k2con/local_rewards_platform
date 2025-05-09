@@ -9,6 +9,7 @@ from rewards.models import (
 @admin.register(BrandsCategory)  
 class BrandsCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ['deleted_at']
+    ordering = ['title']
 
 #
 @admin.register(Currency)
@@ -50,8 +51,12 @@ class PriceInline(admin.TabularInline):
 @admin.register(Reward)
 class RewardAdmin(admin.ModelAdmin):
     inlines = [PriceInline]
-    list_display= ['brand_country', 'reward_type', 'status_display']
+    list_display= ['brand_country__brand__name', 'brand_country__country__name', 'reward_type', 'status_display']
+    search_fields = ['brand_country__country__name', 'brand_country__brand__name']
+    list_filter = ['reward_type']
     readonly_fields = ['deleted_at']
+    exclude = ['image_url']
+    
 
     def status_display(self, obj):
         return obj.get_status_display()
@@ -60,6 +65,7 @@ class RewardAdmin(admin.ModelAdmin):
 class PurchaseDetailInline(admin.StackedInline):
     model = PurchaseDetail
     extra = 1
+    readonly_fields = ['deleted_at']
 
 # 
 @admin.register(BrandCountry)
