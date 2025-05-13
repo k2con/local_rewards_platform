@@ -26,6 +26,9 @@ class BrandsCategory(models.Model):
 
     def __str__(self):
         return self.title
+    class Meta:
+        verbose_name = "Brand Category"
+        verbose_name_plural = "Brand Categories"
 
 class Brand(models.Model):
     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -67,6 +70,9 @@ class BrandCountry(models.Model):
 
     def __str__(self):
         return f"{self.brand.name} - {self.country.name}"
+    class Meta:
+        verbose_name = "Brand Country"
+        verbose_name_plural = "Brand Countries"
 
 class PurchaseDetail(models.Model):
     brand_country = models.OneToOneField(BrandCountry, on_delete=models.CASCADE,related_name='purchase_detail')
@@ -117,3 +123,4 @@ class Price(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
+    
