@@ -19,6 +19,7 @@ DATABASES = {
 
 
 ALLOWED_HOSTS = [
-    'rewards-platform.us-east-2.elasticbeanstalk.com'
+    'rewards-platform.us-east-2.elasticbeanstalk.com',
+    'local-rewards.masamo.tech'
 
 ]
